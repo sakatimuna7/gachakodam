@@ -165,7 +165,7 @@ export default function Home() {
             </animated.div>
           )}
         </div>
-        <footer className="relative left-0 bottom-10 w-full border">
+        <footer className="relative left-0 bottom-10 w-full">
           <div className="flex flex-row gap-2 items-center justify-center text-white my-5">
             Made with ❤️ by{" "}
             <a
