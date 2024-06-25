@@ -1,6 +1,6 @@
 "use client";
 
-import { gachakodam, kodam as KodamType } from "@/lib/gachakodam";
+import { gachakodam, kodam as KodamType, rarity } from "@/lib/gachakodam";
 import { useRef, useState, useEffect } from "react";
 import { FiDownload } from "react-icons/fi";
 import * as htmlToImage from "html-to-image";
@@ -10,6 +10,7 @@ export default function Home() {
   const [name, setName] = useState<string>("");
   const [kodam, setKodam] = useState<KodamType | null>(null);
   const [open, setOpen] = useState(false);
+  const [saveName, setSaveName] = useState<boolean>(false);
 
   const cardRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +24,9 @@ export default function Home() {
 
   const reGacha = () => {
     setKodam(null);
-    setName("");
+    if (!saveName) {
+      setName("");
+    }
     setTimeout(() => inputRef.current?.focus(), 500);
   };
 
@@ -36,6 +39,80 @@ export default function Home() {
       link.href = dataUrl;
       link.click();
     });
+  };
+
+  const getBadge = (r: rarity) => {
+    switch (r) {
+      case rarity.common: {
+        return (
+          <div
+            className={`badge badge-outline ml-auto border-[#00aaff] text-[#00aaff]`}
+          >
+            {r}
+          </div>
+        );
+      }
+      case rarity.rare: {
+        return (
+          <div
+            className={`badge badge-outline ml-auto border-[#8000ff] text-[#8000ff]`}
+          >
+            {r}
+          </div>
+        );
+      }
+      case rarity.epic: {
+        return (
+          <div
+            className={`badge badge-outline ml-auto border-[#7902a8] text-[#7902a8]`}
+          >
+            {r}
+          </div>
+        );
+      }
+      case rarity.legendary: {
+        return (
+          <div
+            className={`badge badge-outline ml-auto border-[#a89202] text-[#a89202]`}
+          >
+            {r}
+          </div>
+        );
+      }
+    }
+  };
+
+  const getColorRarity = (r: rarity) => {
+    switch (r) {
+      case rarity.common: {
+        return (
+          <div
+            className={`bg-[#00aaff] w-20 h-20 rotate-45 relative -left-14`}
+          />
+        );
+      }
+      case rarity.rare: {
+        return (
+          <div
+            className={`bg-[#8000ff] w-20 h-20 rotate-45 relative -left-14`}
+          />
+        );
+      }
+      case rarity.epic: {
+        return (
+          <div
+            className={`bg-[#7902a8] w-20 h-20 rotate-45 relative -left-14`}
+          />
+        );
+      }
+      case rarity.legendary: {
+        return (
+          <div
+            className={` bg-[#a89202] w-20 h-20 rotate-45 relative -left-14`}
+          />
+        );
+      }
+    }
   };
 
   const [flip, setFlip] = useState(false);
@@ -64,7 +141,6 @@ export default function Home() {
       setTimeout(() => setOpen(true), 1000); // Hide unveil animation after 0.5s
     },
   });
-
   const unveilAnimation = useSpring({
     transform: unveil ? "scaleX(1)" : "scaleX(0)",
     transformOrigin: "center",
@@ -73,12 +149,12 @@ export default function Home() {
 
   useEffect(() => {
     console.log(new Date());
-  }, [kodam]);
+  }, []);
 
   return (
     <>
-      <main className="flex flex-col min-h-screen items-center p-12 md:p-24 bg-gradient-to-bl from-slate-900 to-slate-600">
-        <div className="container flex flex-col items-center p-12 md:p-24 ">
+      <main className="flex flex-col min-h-screen items-center p-0 md:p-24 bg-gradient-to-bl from-slate-900 to-slate-600">
+        <div className="container flex flex-col items-center p-12  md:p-24 ">
           {!kodam && (
             <div className="flex flex-col bg-white p-5 rounded-lg drop-shadow-lg">
               <h1 className="text-2xl text-center font-bold text-black my-6">
@@ -92,12 +168,23 @@ export default function Home() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+              <div className="form-control mt-2">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Save Name</span>
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-xs md:checkbox-sm"
+                    checked={saveName}
+                    onChange={() => setSaveName((prev) => !prev)}
+                  />
+                </label>
+              </div>
               <button
                 className="btn btn-outline my-5"
                 type="button"
                 onClick={getKodam}
               >
-                Button
+                Gacha Kodam
               </button>
             </div>
           )}
@@ -108,9 +195,10 @@ export default function Home() {
                   <h1 className="text-xl md:text-4xl text-center">
                     🎊congratulation🎊
                   </h1>
-                  <div className="relative top-10 md:top-20 right-0 z-10 flex flex-col items-end py-1 md:py-4 pe-5">
+                  <div className="relative top-10 md:top-20 right-0 z-10 flex flex-row justify-between items-end max-h-10 rounded-tl-lg overflow-hidden">
+                    {getColorRarity(kodam.rarity)}
                     <button
-                      className="btn btn-circle btn-sm md:btn-md bg-white bg-opacity-35 backdrop-blur-md border-white text-white"
+                      className="btn btn-circle btn-sm md:btn-md bg-white bg-opacity-35 backdrop-blur-md border-white text-white me-5"
                       onClick={download}
                     >
                       <FiDownload />
@@ -135,6 +223,7 @@ export default function Home() {
                   <p className="md:text-xl text-sm text-center font-bold text-black">
                     {name}
                   </p>
+                  {getBadge(kodam.rarity)}
                   <div className="border rounded-lg p-2">
                     <span className="italic text-sm">Kodam</span>
                     <p className="text-black font-bold text-sm">
@@ -166,7 +255,7 @@ export default function Home() {
           )}
         </div>
         <footer className="relative left-0 bottom-10 w-full">
-          <div className="flex flex-row gap-2 items-center justify-center text-white my-5">
+          <div className="text-xs flex flex-row gap-2 items-center justify-center text-white my-5">
             Made with ❤️ by{" "}
             <a
               href="https://instagram.com/hamdanhabibi7"
